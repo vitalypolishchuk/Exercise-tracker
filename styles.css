@@ -148,7 +148,7 @@ select {
 .info-container::-webkit-scrollbar {
   display: none;
 }
-.container {
+.info-container {
   -ms-overflow-style: none; /* Internet Explorer 10+ */
   scrollbar-width: none; /* Firefox */
 }

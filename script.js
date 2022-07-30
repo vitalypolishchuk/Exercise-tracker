@@ -13,6 +13,7 @@ const field5 = document.querySelector(".field-5"); // elevGain container
 /////////////// DATA ///////////////
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+/////////////// WORKOUT CLASS ///////////////
 class Workout {
   date = new Date();
   id = (Date.now() + "").slice(-10);
