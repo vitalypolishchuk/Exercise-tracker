@@ -1,5 +1,6 @@
 /////////////// FORM ///////////////
 const inputContainer = document.querySelector(".take-input-container");
+const infoContainer = document.querySelector(".info-container");
 const form = document.querySelector(".center");
 const exerType = document.getElementById("exer-type");
 const distance = document.getElementById("distance");
@@ -9,23 +10,64 @@ const elevGain = document.getElementById("elev-gain");
 const field4 = document.querySelector(".field-4"); // cadence container
 const field5 = document.querySelector(".field-5"); // elevGain container
 
-let map;
-let mapEvent;
-
 /////////////// DATA ///////////////
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+class Workout {
+  date = new Date();
+  id = (Date.now() + "").slice(-10);
+
+  constructor(coords, distance, duration) {
+    this.coords = coords; // [lat, lng]
+    this.distance = distance;
+    this.duration = duration;
+  }
+}
+class Running extends Workout {
+  constructor(coords, distance, duration, cadence) {
+    super(coords, distance, duration);
+    this.cadence = cadence;
+    this.calcPace();
+  }
+  calcPace() {
+    this.pace = this.duration / this.distance;
+  }
+}
+class Cycling extends Workout {
+  constructor(coords, distance, duration, elevationGain) {
+    super(coords, distance, duration);
+    this.elevationGain = elevationGain;
+    this.calcSpeed();
+  }
+  calcSpeed() {
+    this.speed = this.distance / (this.duration / 60);
+  }
+}
+
+/////////////// APPLICATION ARCHITECTURE ///////////////
 class App {
   #map;
   #mapEvent;
+  #workouts = [];
 
   constructor() {
     this._getPosition();
+    this._showWorkouts();
 
     form.addEventListener("keypress", this._newWorkout.bind(this));
-    exerType.addEventListener("change", this._toggleElevationField.bind(this));
+    exerType.addEventListener("change", this._toggleElevationField);
   }
 
+  _showWorkouts() {
+    if (!infoContainer.children) return;
+    infoContainer.classList.remove("hide-height");
+    if (window.innerWidth < 900) {
+      infoContainer.style.height = 115 * infoContainer.children.length + "px";
+      infoContainer.style.maxHeight = "340px";
+    } else {
+      infoContainer.style.height = "440px";
+    }
+  }
   _getPosition() {
     if (navigator.geolocation)
       navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function () {
@@ -49,8 +91,13 @@ class App {
   }
   _showForm(mapE) {
     this.#mapEvent = mapE;
-    inputContainer.classList.remove("hidden");
-    console.log(this.#mapEvent);
+    inputContainer.classList.remove("hide-height");
+    if (window.innerWidth < 900) {
+      infoContainer.style.height = 115 * infoContainer.children.length + "px";
+      infoContainer.style.maxHeight = "340px";
+    } else {
+      infoContainer.style.height = "440px";
+    }
   }
   _toggleElevationField() {
     field4.classList.toggle("none");
@@ -60,50 +107,34 @@ class App {
     if (e.key !== "Enter") return;
     if (!distance.value || !duration.value || (exerType.value === "run" && !cadence.value) || (exerType.value === "cyc" && !elevGain.value))
       return alert("Please fill all the fields!");
-    if (
-      Number(distance.value) <= 0 ||
-      Number(duration.value) <= 0 ||
-      (exerType.value === "run" && Number(cadence.value) <= 0) ||
-      (exerType.value === "cyc" && Number(elevGain.value) <= 0)
-    )
+    if (Number(distance.value) <= 0 || Number(duration.value) <= 0 || (exerType.value === "run" && Number(cadence.value) <= 0))
       return alert("Please provide positive values!");
+
+    // create workout activity
+    const { lat, lng } = this.#mapEvent.latlng;
+    let workout;
+    let actName;
+    if (exerType.value === "run") {
+      workout = new Running([lat, lng], Number(distance.value), Number(duration.value), Number(cadence.value));
+      actName = "Running";
+    } else {
+      workout = new Cycling([lat, lng], Number(distance.value), Number(duration.value), Number(elevGain.value));
+      actName = "Cycling";
+    }
+    this.#workouts.push(workout);
 
     distance.value = duration.value = cadence.value = "";
 
-    const { lat, lng } = this.#mapEvent.latlng;
+    // display marker and render workout on a map
     this.#map.setView([lat, lng], 13);
     L.marker([lat, lng], {})
       .addTo(this.#map)
-      .bindPopup(L.popup({ maxWidth: 250, minWidth: 100, autoClose: false, closeOnClick: false, className: "running-popup" }))
-      .setPopupContent("Workout")
+      .bindPopup(L.popup({ maxWidth: 250, minWidth: 100, autoClose: false, closeOnClick: false, className: `${exerType.value}-popup` }))
+      .setPopupContent(actName)
       .openPopup();
+
+    // hide input panel
+    inputContainer.classList.add("hide-height");
   }
 }
 const app = new App();
-
-class Workout {
-  #id;
-  constructor(id, distance, duration, coords, date) {
-    this.#id = id;
-    this.distance = distance;
-    this.duration = duration;
-    this.coords = coords;
-    this.date = date;
-  }
-}
-class Running extends Workout {
-  constructor(id, distance, duration, coords, date, name, cadence, pace) {
-    super(id, distance, duration, coords, date);
-    this.name = name;
-    this.cadence = cadence;
-    this.pace = pace;
-  }
-}
-class Cycling extends Workout {
-  constructor(id, distance, duration, coords, date, name, elevationGain, speed) {
-    super(id, distance, duration, coords, date);
-    this.name = name;
-    this.elevationGain = elevationGain;
-    this.speed = speed;
-  }
-}
