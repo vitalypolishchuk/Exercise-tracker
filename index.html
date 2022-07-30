@@ -5,6 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
+    <script
+      defer
+      src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+      integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+      crossorigin=""
+    ></script>
     <script defer src="script.js"></script>
     <title>Mapty</title>
   </head>
@@ -16,11 +28,11 @@
             <img class="logo" src="/img/logo.png" alt="" />
           </div>
         </div>
-        <div class="stat-out-container take-input-container">
-          <div class="center">
+        <div class="stat-out-container take-input-container hidden">
+          <form class="center">
             <div class="field field-1">
-              <label for="type">Type</label>
-              <select id="type" name="type">
+              <label for="exer-type">Type</label>
+              <select id="exer-type" name="exer-type">
                 <option value="run">Running</option>
                 <option value="cyc">Cycling</option>
               </select>
@@ -37,9 +49,13 @@
               <label for="cadence">Cadence</label>
               <input type="number" id="cadence" placeholder="step/min" />
             </div>
-          </div>
+            <div class="field field-5 none">
+              <label for="elev-gain">Elev Gain</label>
+              <input type="number" id="elev-gain" placeholder="meters" />
+            </div>
+          </form>
         </div>
-        <div class="stat-out-container">
+        <div class="stat-out-container hidden">
           <h3>Running on July 29</h3>
           <div class="stat-inner-container">
             <h4>🏃‍♂️ 15 <span class="unit">KM</span></h4>
@@ -49,7 +65,7 @@
           </div>
         </div>
       </section>
-      <section class="map"></section>
+      <section id="map"></section>
     </div>
   </body>
 </html>
