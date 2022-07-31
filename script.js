@@ -128,11 +128,13 @@ class App {
   }
   _renderWorkoutMarker(workout) {
     this.#map.setView(workout.coords, 13);
-    L.marker(workout.coords, {})
+    const marker = new L.marker(workout.coords, {});
+    marker
       .addTo(this.#map)
       .bindPopup(L.popup({ maxWidth: 250, minWidth: 100, autoClose: false, closeOnClick: false, className: `${workout.type.toLowerCase()}-popup` }))
       .setPopupContent(`${workout.type} on ${months[workout.date.getMonth()]} ${workout.date.getDate()}`)
       .openPopup();
+    workout.marker = marker; // add marker to workout
   }
   _renderWorkout(workout) {
     const htmlRunning = `
@@ -144,6 +146,7 @@ class App {
           <h4>⚡️ ${workout.pace} <span class="unit">MIN/KM </span></h4>
           <h4>🦶🏼 ${workout.cadence} <span class="unit">SPM </span></h4>
         </div>
+        <span class="delete none"><i class="fa-solid fa-circle-xmark"></i></span>
       </div>
     `;
     const htmlCycling = `
@@ -155,6 +158,7 @@ class App {
           <h4>⚡️ ${workout.speed} <span class="unit">KM/H </span></h4>
           <h4>⛰ ${workout.elevationGain} <span class="unit">M </span></h4>
         </div>
+        <span class="delete none"><i class="fa-solid fa-circle-xmark"></i></span>
       </div>
     `;
     const insertHtml = workout.type === "Running" ? htmlRunning : htmlCycling;
@@ -163,10 +167,24 @@ class App {
     this._showWorkouts();
   }
   _moveMapToWorkout(e) {
+    if (e.target.parentElement.classList.contains("delete")) return;
     const workoutElement = e.target.closest(".workout");
     if (!workoutElement) return;
     const workout = this.#workouts.find((workout) => workout.id === workoutElement.getAttribute("data-id"));
     this.#map.setView(workout.coords, 13);
+    // deleteBtn.classList.toggle("none");
+    const deleteBtn = [...workoutElement.children].find((child) => child.classList.contains("delete"));
+    deleteBtn.classList.toggle("none");
+    console.log(this.#workouts);
+    deleteBtn.addEventListener("click", this._removeWorkout.bind(this, workout));
+  }
+  _removeWorkout(workout) {
+    // console.log(workout);
+    this.#map.removeLayer(workout.marker); // remove marker
+    const workoutIndex = this.#workouts.findIndex((wrk) => wrk.id === workout.id);
+    infoContainer.removeChild(infoContainer.children[infoContainer.children.length - 1 - workoutIndex]); // remove HTML
+    this.#workouts.splice(workoutIndex, 1);
+    this._showWorkouts();
   }
 }
 const app = new App();
