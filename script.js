@@ -59,6 +59,7 @@ class App {
 
     form.addEventListener("keypress", this._newWorkout.bind(this));
     exerType.addEventListener("change", this._toggleElevationField);
+    infoContainer.addEventListener("click", this._moveMapToWorkout.bind(this));
   }
 
   _showWorkouts() {
@@ -126,7 +127,6 @@ class App {
     this._hideForm();
   }
   _renderWorkoutMarker(workout) {
-    console.log(workout);
     this.#map.setView(workout.coords, 13);
     L.marker(workout.coords, {})
       .addTo(this.#map)
@@ -136,7 +136,7 @@ class App {
   }
   _renderWorkout(workout) {
     const htmlRunning = `
-      <div class="workout ${workout.type}">
+      <div class="workout ${workout.type}" data-id="${workout.id}">
         <h3>Running on ${months[workout.date.getMonth()]} ${workout.date.getDate()}</h3>
         <div class="stat-inner-container">
           <h4>🏃‍♂️ ${workout.distance} <span class="unit">KM </span></h4>
@@ -147,7 +147,7 @@ class App {
       </div>
     `;
     const htmlCycling = `
-      <div class="workout ${workout.type}">
+      <div class="workout ${workout.type}" data-id="${workout.id}">
         <h3>Cycling on ${months[workout.date.getMonth()]} ${workout.date.getDate()}</h3>
         <div class="stat-inner-container">
           <h4>🚴‍♀️ ${workout.distance} <span class="unit">KM </span></h4>
@@ -161,6 +161,12 @@ class App {
     infoContainer.insertAdjacentHTML("afterbegin", insertHtml);
 
     this._showWorkouts();
+  }
+  _moveMapToWorkout(e) {
+    const workoutElement = e.target.closest(".workout");
+    if (!workoutElement) return;
+    const workout = this.#workouts.find((workout) => workout.id === workoutElement.getAttribute("data-id"));
+    this.#map.setView(workout.coords, 13);
   }
 }
 const app = new App();
