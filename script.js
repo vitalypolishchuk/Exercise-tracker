@@ -194,22 +194,23 @@ class App {
     this.#map.removeLayer(workout.marker); // remove marker
     const workoutIndex = this.#workouts.findIndex((wrk) => wrk.id === workout.id);
     infoContainer.removeChild(infoContainer.children[infoContainer.children.length - 1 - workoutIndex]); // remove HTML
+    localStorage.removeItem(workout.id); // remove from []
     this.#workouts.splice(workoutIndex, 1); // remove from []
     this._showWorkouts.call(this);
   }
   _setLocalStorage() {
-    const objForStorage = JSON.stringify(this.#workouts, getCircularReplacer());
-    localStorage.setItem("workouts", objForStorage);
+    const objForStorage = this.#workouts.map((workout) => JSON.stringify(workout, getCircularReplacer()));
+    objForStorage.forEach((obj, i) => localStorage.setItem(this.#workouts[i].id, obj));
+    // localStorage.setItem("workouts", objForStorage);
   }
   _getLocalStorage() {
-    const data = JSON.parse(localStorage.getItem("workouts"));
-
-    if (!data) return;
-    this.#workouts = data;
-    this.#workouts.forEach((workout) => {
+    const keys = Object.keys(localStorage);
+    for (const key of keys) {
+      const workout = JSON.parse(localStorage.getItem(key));
       workout.date = new Date(workout.date);
+      this.#workouts.push(workout);
       this._renderWorkout(workout);
-    });
+    }
   }
 }
 const app = new App();
