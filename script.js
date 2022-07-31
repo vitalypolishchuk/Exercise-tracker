@@ -12,6 +12,7 @@ const field5 = document.querySelector(".field-5"); // elevGain container
 
 /////////////// DATA ///////////////
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const zoomMap = 13;
 
 /////////////// WORKOUT CLASS ///////////////
 class Workout {
@@ -88,7 +89,7 @@ class App {
     const { longitude } = position.coords;
     const coords = [latitude, longitude];
 
-    this.#map = L.map("map").setView(coords, 13);
+    this.#map = L.map("map").setView(coords, zoomMap);
 
     const googleStreets = L.tileLayer("http://{s}.google.com/vt?lyrs=m&x={x}&y={y}&z={z}", {
       maxZoom: 20,
@@ -139,7 +140,7 @@ class App {
     this._setLocalStorage();
   }
   _renderWorkoutMarker(workout) {
-    this.#map.setView(workout.coords, 13);
+    this.#map.setView(workout.coords, 14);
     const marker = new L.marker(workout.coords, {});
     marker
       .addTo(this.#map)
@@ -183,7 +184,7 @@ class App {
     const workoutElement = e.target.closest(".workout");
     if (!workoutElement) return;
     const workout = this.#workouts.find((workout) => workout.id === workoutElement.getAttribute("data-id"));
-    this.#map.setView(workout.coords, 13, { animate: true, pan: { duration: 1 } });
+    this.#map.setView(workout.coords, this.#map.getZoom(), { animate: true, pan: { duration: 1 } });
 
     const deleteBtn = [...workoutElement.children].find((child) => child.classList.contains("delete"));
     deleteBtn.classList.toggle("none");
