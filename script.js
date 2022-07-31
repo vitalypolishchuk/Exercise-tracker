@@ -194,7 +194,7 @@ class App {
     this.#map.removeLayer(workout.marker); // remove marker
     const workoutIndex = this.#workouts.findIndex((wrk) => wrk.id === workout.id);
     infoContainer.removeChild(infoContainer.children[infoContainer.children.length - 1 - workoutIndex]); // remove HTML
-    localStorage.removeItem(workout.id); // remove from []
+    localStorage.removeItem(workout.id); // remove from storage
     this.#workouts.splice(workoutIndex, 1); // remove from []
     this._showWorkouts.call(this);
   }
