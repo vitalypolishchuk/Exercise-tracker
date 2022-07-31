@@ -186,8 +186,9 @@ class App {
     const workout = this.#workouts.find((workout) => workout.id === workoutElement.getAttribute("data-id"));
     this.#map.setView(workout.coords, this.#map.getZoom(), { animate: true, pan: { duration: 1 } });
 
+    [...document.querySelectorAll(".delete")].forEach((dltBtn) => dltBtn.classList.add("none"));
     const deleteBtn = [...workoutElement.children].find((child) => child.classList.contains("delete"));
-    deleteBtn.classList.toggle("none");
+    deleteBtn.classList.remove("none");
     deleteBtn.addEventListener("click", this._removeWorkout.bind(this, workout));
   }
   _removeWorkout(workout) {
