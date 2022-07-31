@@ -54,7 +54,12 @@ class App {
   #workouts = [];
 
   constructor() {
+    // get user's position
     this._getPosition();
+
+    // get data from local storage
+    this._getLocalStorage();
+
     this._showWorkouts();
 
     form.addEventListener("keypress", this._newWorkout.bind(this));
@@ -92,6 +97,10 @@ class App {
     googleStreets.addTo(this.#map);
 
     this.#map.on("click", this._showForm.bind(this));
+
+    this.#workouts.forEach((workout) => {
+      this._renderWorkoutMarker(workout);
+    });
   }
   _showForm(mapE) {
     this.#mapEvent = mapE;
@@ -125,6 +134,9 @@ class App {
     this._renderWorkoutMarker(workout);
     this._renderWorkout(workout);
     this._hideForm();
+
+    // Set local storage to all workouts
+    this._setLocalStorage();
   }
   _renderWorkoutMarker(workout) {
     this.#map.setView(workout.coords, 13);
@@ -171,11 +183,10 @@ class App {
     const workoutElement = e.target.closest(".workout");
     if (!workoutElement) return;
     const workout = this.#workouts.find((workout) => workout.id === workoutElement.getAttribute("data-id"));
-    this.#map.setView(workout.coords, 13);
-    // deleteBtn.classList.toggle("none");
+    this.#map.setView(workout.coords, 13, { animate: true, pan: { duration: 1 } });
+
     const deleteBtn = [...workoutElement.children].find((child) => child.classList.contains("delete"));
     deleteBtn.classList.toggle("none");
-    console.log(this.#workouts);
     deleteBtn.addEventListener("click", this._removeWorkout.bind(this, workout));
   }
   _removeWorkout(workout) {
@@ -183,8 +194,36 @@ class App {
     this.#map.removeLayer(workout.marker); // remove marker
     const workoutIndex = this.#workouts.findIndex((wrk) => wrk.id === workout.id);
     infoContainer.removeChild(infoContainer.children[infoContainer.children.length - 1 - workoutIndex]); // remove HTML
-    this.#workouts.splice(workoutIndex, 1);
-    this._showWorkouts();
+    localStorage.removeItem(workout.id); // remove from []
+    this.#workouts.splice(workoutIndex, 1); // remove from []
+    this._showWorkouts.call(this);
+  }
+  _setLocalStorage() {
+    const objForStorage = this.#workouts.map((workout) => JSON.stringify(workout, getCircularReplacer()));
+    objForStorage.forEach((obj, i) => localStorage.setItem(this.#workouts[i].id, obj));
+    // localStorage.setItem("workouts", objForStorage);
+  }
+  _getLocalStorage() {
+    const keys = Object.keys(localStorage);
+    for (const key of keys) {
+      const workout = JSON.parse(localStorage.getItem(key));
+      workout.date = new Date(workout.date);
+      this.#workouts.push(workout);
+      this._renderWorkout(workout);
+    }
   }
 }
 const app = new App();
+
+function getCircularReplacer() {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+}
