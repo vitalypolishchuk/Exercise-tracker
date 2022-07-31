@@ -25,23 +25,25 @@ class Workout {
   }
 }
 class Running extends Workout {
+  type = "Running";
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
     this.calcPace();
   }
   calcPace() {
-    this.pace = this.duration / this.distance;
+    this.pace = Math.round((this.duration / this.distance) * 100) / 100;
   }
 }
 class Cycling extends Workout {
+  type = "Cycling";
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
     this.calcSpeed();
   }
   calcSpeed() {
-    this.speed = this.distance / (this.duration / 60);
+    this.speed = Math.round((this.distance / (this.duration / 60)) * 100) / 100;
   }
 }
 
@@ -57,6 +59,7 @@ class App {
 
     form.addEventListener("keypress", this._newWorkout.bind(this));
     exerType.addEventListener("change", this._toggleElevationField);
+    infoContainer.addEventListener("click", this._moveMapToWorkout.bind(this));
   }
 
   _showWorkouts() {
@@ -64,7 +67,7 @@ class App {
     infoContainer.classList.remove("hide-height");
     if (window.innerWidth < 900) {
       infoContainer.style.height = 115 * infoContainer.children.length + "px";
-      infoContainer.style.maxHeight = "340px";
+      infoContainer.style.maxHeight = "335px";
     } else {
       infoContainer.style.height = "440px";
     }
@@ -93,12 +96,11 @@ class App {
   _showForm(mapE) {
     this.#mapEvent = mapE;
     inputContainer.classList.remove("hide-height");
-    if (window.innerWidth < 900) {
-      infoContainer.style.height = 115 * infoContainer.children.length + "px";
-      infoContainer.style.maxHeight = "340px";
-    } else {
-      infoContainer.style.height = "440px";
-    }
+  }
+  _hideForm() {
+    // hide input panel
+    distance.value = duration.value = cadence.value = "";
+    inputContainer.classList.add("hide-height");
   }
   _toggleElevationField() {
     field4.classList.toggle("none");
@@ -114,28 +116,75 @@ class App {
     // create workout activity
     const { lat, lng } = this.#mapEvent.latlng;
     let workout;
-    let actName;
     if (exerType.value === "run") {
       workout = new Running([lat, lng], Number(distance.value), Number(duration.value), Number(cadence.value));
-      actName = "Running";
     } else {
       workout = new Cycling([lat, lng], Number(distance.value), Number(duration.value), Number(elevGain.value));
-      actName = "Cycling";
     }
     this.#workouts.push(workout);
-
-    distance.value = duration.value = cadence.value = "";
-
-    // display marker and render workout on a map
-    this.#map.setView([lat, lng], 13);
-    L.marker([lat, lng], {})
+    this._renderWorkoutMarker(workout);
+    this._renderWorkout(workout);
+    this._hideForm();
+  }
+  _renderWorkoutMarker(workout) {
+    this.#map.setView(workout.coords, 13);
+    const marker = new L.marker(workout.coords, {});
+    marker
       .addTo(this.#map)
-      .bindPopup(L.popup({ maxWidth: 250, minWidth: 100, autoClose: false, closeOnClick: false, className: `${exerType.value}-popup` }))
-      .setPopupContent(actName)
+      .bindPopup(L.popup({ maxWidth: 250, minWidth: 100, autoClose: false, closeOnClick: false, className: `${workout.type.toLowerCase()}-popup` }))
+      .setPopupContent(`${workout.type} on ${months[workout.date.getMonth()]} ${workout.date.getDate()}`)
       .openPopup();
+    workout.marker = marker; // add marker to workout
+  }
+  _renderWorkout(workout) {
+    const htmlRunning = `
+      <div class="workout ${workout.type}" data-id="${workout.id}">
+        <h3>Running on ${months[workout.date.getMonth()]} ${workout.date.getDate()}</h3>
+        <div class="stat-inner-container">
+          <h4>🏃‍♂️ ${workout.distance} <span class="unit">KM </span></h4>
+          <h4>⏱ ${workout.duration} <span class="unit">MIN </span></h4>
+          <h4>⚡️ ${workout.pace} <span class="unit">MIN/KM </span></h4>
+          <h4>🦶🏼 ${workout.cadence} <span class="unit">SPM </span></h4>
+        </div>
+        <span class="delete none"><i class="fa-solid fa-circle-xmark"></i></span>
+      </div>
+    `;
+    const htmlCycling = `
+      <div class="workout ${workout.type}" data-id="${workout.id}">
+        <h3>Cycling on ${months[workout.date.getMonth()]} ${workout.date.getDate()}</h3>
+        <div class="stat-inner-container">
+          <h4>🚴‍♀️ ${workout.distance} <span class="unit">KM </span></h4>
+          <h4>⏱ ${workout.duration} <span class="unit">MIN </span></h4>
+          <h4>⚡️ ${workout.speed} <span class="unit">KM/H </span></h4>
+          <h4>⛰ ${workout.elevationGain} <span class="unit">M </span></h4>
+        </div>
+        <span class="delete none"><i class="fa-solid fa-circle-xmark"></i></span>
+      </div>
+    `;
+    const insertHtml = workout.type === "Running" ? htmlRunning : htmlCycling;
+    infoContainer.insertAdjacentHTML("afterbegin", insertHtml);
 
-    // hide input panel
-    inputContainer.classList.add("hide-height");
+    this._showWorkouts();
+  }
+  _moveMapToWorkout(e) {
+    if (e.target.parentElement.classList.contains("delete")) return;
+    const workoutElement = e.target.closest(".workout");
+    if (!workoutElement) return;
+    const workout = this.#workouts.find((workout) => workout.id === workoutElement.getAttribute("data-id"));
+    this.#map.setView(workout.coords, 13);
+    // deleteBtn.classList.toggle("none");
+    const deleteBtn = [...workoutElement.children].find((child) => child.classList.contains("delete"));
+    deleteBtn.classList.toggle("none");
+    console.log(this.#workouts);
+    deleteBtn.addEventListener("click", this._removeWorkout.bind(this, workout));
+  }
+  _removeWorkout(workout) {
+    // console.log(workout);
+    this.#map.removeLayer(workout.marker); // remove marker
+    const workoutIndex = this.#workouts.findIndex((wrk) => wrk.id === workout.id);
+    infoContainer.removeChild(infoContainer.children[infoContainer.children.length - 1 - workoutIndex]); // remove HTML
+    this.#workouts.splice(workoutIndex, 1);
+    this._showWorkouts();
   }
 }
 const app = new App();
