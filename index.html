@@ -58,7 +58,42 @@
         </div>
         <div class="stat-out-container info-container hide-height"></div>
       </section>
-      <section id="map"></section>
+      <section id="map">
+        <!-- to edit marker -->
+        <!-- <i class="fa-solid fa-location-pen"></i> -->
+      </section>
+      <div class="marker-editor none">
+        <h4>Marker Editor</h4>
+        <div class="stat-out-container edit-input-container">
+          <form class="center">
+            <div class="field field-1-edit">
+              <label for="date">Date</label>
+              <input type="date" id="date-edit" />
+            </div>
+            <div class="field field-2-edit">
+              <label for="distance-edit">Distance</label>
+              <input type="number" id="distance-edit" placeholder="km" />
+            </div>
+            <div class="field field-3-edit">
+              <label for="duration-edit">Duration</label>
+              <input type="number" id="duration-edit" placeholder="min" />
+            </div>
+            <div class="field field-4-edit none">
+              <label for="cadence-edit">Cadence</label>
+              <input type="number" id="cadence-edit" placeholder="step/min" />
+            </div>
+            <div class="field field-5-edit none">
+              <label for="elev-gain-edit">Elev Gain</label>
+              <input type="number" id="elev-gain-edit" placeholder="meters" />
+            </div>
+          </form>
+        </div>
+        <div class="buttons">
+          <button class="btn cancel">Cancel</button>
+          <button class="btn save">Save</button>
+        </div>
+      </div>
+      <div class="overlay none"></div>
     </div>
   </body>
 </html>
