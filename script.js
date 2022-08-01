@@ -298,6 +298,7 @@ class App {
     this._renderWorkout(workout, workoutIndex);
 
     this._removeEditFields();
+    this._setLocalStorage();
   }
   _setLocalStorage() {
     const objForStorage = this.#workouts.map((workout) => JSON.stringify(workout, getCircularReplacer()));
