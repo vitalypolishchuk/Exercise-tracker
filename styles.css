@@ -6,6 +6,12 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+a {
+  color: black;
+}
+a:visited {
+  color: black;
+}
 /* 
 ====================================
 VARIABLES
@@ -44,6 +50,7 @@ INFO
 ====================================
 */
 .info {
+  position: relative;
   background: var(--color-dark--2);
   /* height: 600px; */
   width: 100%;
@@ -179,6 +186,9 @@ select {
   font-size: 1.5rem;
   color: var(--color-light--2);
 }
+.copyright {
+  display: none;
+}
 @media screen and (min-width: 900px) {
   .info {
     height: 100vh;
@@ -189,6 +199,17 @@ select {
   }
   .info-container {
     height: 640px;
+  }
+  .copyright {
+    text-align: center;
+    color: var(--color-light--1);
+    font-size: 0.7rem;
+    display: inline-block;
+    position: absolute;
+    bottom: 1rem;
+  }
+  .copyright a {
+    color: var(--color-light--2);
   }
 }
 /* 

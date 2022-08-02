@@ -323,6 +323,7 @@ class App {
     const bounds = L.latLngBounds(markerArray);
     this.#map.fitBounds(bounds);
   }
+  // add weather API and functionality
 }
 const app = new App();
 
