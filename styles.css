@@ -27,7 +27,7 @@ VARIABLES
   --color-light--2: #ececec;
   --color-light--3: rgb(214, 222, 224);
 
-  --transition: all 0.3s linear;
+  --transition: all 0.2s linear;
 }
 /* 
 ====================================
@@ -124,6 +124,7 @@ INFO
   align-items: center;
   color: var(--color-light--2);
   width: 160px;
+  transition: var(--transition);
 }
 .field-1,
 .field-2 {

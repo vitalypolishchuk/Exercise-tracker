@@ -249,28 +249,26 @@ class App {
     this._showWorkouts.call(this);
   }
   _removeEditFields() {
-    markerEditor.classList.add("none");
-    overlay.classList.add("none");
-    field4Edit.classList.add("none");
-    field5Edit.classList.add("none");
+    markerEditor.classList.add("hidden");
+    overlay.classList.add("hidden");
+    field4Edit.classList.add("hidden");
+    field5Edit.classList.add("hidden");
   }
   _editWorkout(e, workout) {
     e.stopImmediatePropagation();
-    markerEditor.classList.remove("none");
-    overlay.classList.remove("none");
-    if (workout.type === "Running") field4Edit.classList.remove("none");
-    else field5Edit.classList.remove("none");
+    markerEditor.classList.remove("hidden");
+    overlay.classList.remove("hidden");
+    if (workout.type === "Running") field4Edit.classList.remove("hidden");
+    else field5Edit.classList.remove("hidden");
     cancelBtn.addEventListener("click", this._removeEditFields);
     x = this._addEvent.bind(this, e, workout);
     saveBtn.addEventListener("click", x);
   }
   _addEvent(e, workout) {
-    saveBtn.removeEventListener("click", x);
     this._editWorkout2(e, workout);
   }
   _editWorkout2(e, workout) {
     e.stopImmediatePropagation();
-    console.log(workout);
     if (
       !distanceEdit.value ||
       !durationEdit.value ||
@@ -280,6 +278,8 @@ class App {
       return alert("Please fill all the fields!");
     if (Number(distanceEdit.value) <= 0 || Number(durationEdit.value) <= 0 || (workout.type === "Running" && Number(cadenceEdit.value) <= 0))
       return alert("Please provide positive values!");
+
+    saveBtn.removeEventListener("click", x);
 
     workout.distance = Number(distanceEdit.value);
     workout.duration = Number(durationEdit.value);
