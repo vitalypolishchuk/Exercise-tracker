@@ -24,6 +24,9 @@ const field5Edit = document.querySelector(".field-5-edit"); // elevGain containe
 const cancelBtn = document.querySelector(".cancel");
 const saveBtn = document.querySelector(".save");
 
+// ALL MARKERS
+const allMarkersBtn = document.querySelector(".all-markers");
+
 // localStorage.clear();
 
 /////////////// DATA ///////////////
@@ -119,6 +122,7 @@ class App {
     this.#workouts.forEach((workout) => {
       this._renderWorkoutMarker(workout);
     });
+    allMarkersBtn.addEventListener("click", this._showAllMarkers.bind(this));
   }
   _showForm(mapE) {
     this.#mapEvent = mapE;
