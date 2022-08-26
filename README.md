@@ -1,6 +1,6 @@
 # Bankist
 
-Fun-Cooker using Vanilla JS, the code was bundled with Parcel
+Exercise-tracker using Vanilla JS
 
 ## Acknowledgements
 
