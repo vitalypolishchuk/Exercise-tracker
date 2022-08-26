@@ -1,6 +1,6 @@
 # Bankist
 
-Exercise-tracker using Vanilla JS
+Exercise-tracker using Vanilla JS and Leaflet library
 
 ## Acknowledgements
 
