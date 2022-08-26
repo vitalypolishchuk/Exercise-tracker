@@ -1,0 +1,22 @@
+{
+  "name": "npm-modules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitalypolishchuk/Exercise-tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vitalypolishchuk/Exercise-tracker/issues"
+  },
+  "homepage": "https://github.com/vitalypolishchuk/Exercise-tracker#readme",
+  "dependencies": {
+    "leaflet": "^1.8.0"
+  }
+}
